@@ -29,8 +29,8 @@ runs:
         [[ "${{ inputs.AWS_SECRET_ACCESS_KEY }}" ]] || { echo "Input 'AWS_SECRET_ACCESS_KEY' is empty" ; exit 1; }
         [[ "${{ inputs.AWS_DEFAULT_REGION }}" ]] || { echo "Input 'AWS_DEFAULT_REGION' is empty" ; exit 1; }
 
-        KEY="${{ inputs.secret-name }}"
-        VALUE="${{ inputs.secret-value }}"
+        KEY="${{ inputs.name }}"
+        VALUE="${{ inputs.value }}"
 
         # check if secret exists
         aws secretsmanager describe-secret --secret-id "$KEY"
