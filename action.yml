@@ -8,16 +8,16 @@ inputs:
     description: String value stored under secret 'name'
     required: true
   AWS_ACCESS_KEY_ID:
-    description: Set AWS Access Key ID'
+    description: Set AWS Access Key ID
     required: false
   AWS_SECRET_ACCESS_KEY:
-    description: 'Set AWS Secret access Key'
+    description: Set AWS Secret Access Key
     required: false
   AWS_SESSION_TOKEN:
-    description: 'Set AWS Session token Key'
+    description: Set AWS Session Token Key
     required: false
   AWS_DEFAULT_REGION:
-    description: 'Set AWS default region'
+    description: Set AWS Default Region
     required: false
 runs:
   using: "composite"
