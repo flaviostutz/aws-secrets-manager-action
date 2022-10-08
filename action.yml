@@ -9,20 +9,26 @@ inputs:
     required: true
   AWS_ACCESS_KEY_ID:
     description: Set AWS Access Key ID
-    required: false
+    required: true
   AWS_SECRET_ACCESS_KEY:
     description: Set AWS Secret Access Key
-    required: false
+    required: true
   AWS_SESSION_TOKEN:
     description: Set AWS Session Token Key
     required: false
   AWS_DEFAULT_REGION:
     description: Set AWS Default Region
-    required: false
+    required: true
 runs:
   using: "composite"
   steps:
     - run: |
+        [[ "${{ inputs.name }}" ]] || { echo "name input is empty" ; exit 1; }
+        [[ "${{ inputs.value }}" ]] || { echo "value input is empty" ; exit 1; }
+        [[ "${{ inputs.AWS_ACCESS_KEY_ID }}" ]] || { echo "AWS_ACCESS_KEY_ID input is empty" ; exit 1; }
+        [[ "${{ inputs.AWS_SECRET_ACCESS_KEY }}" ]] || { echo "AWS_SECRET_ACCESS_KEY input is empty" ; exit 1; }
+        [[ "${{ inputs.AWS_DEFAULT_REGION }}" ]] || { echo "AWS_DEFAULT_REGION input is empty" ; exit 1; }
+
         KEY="${{ inputs.secret-name }}"
         VALUE="${{ inputs.secret-value }}"
 
