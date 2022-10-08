@@ -6,7 +6,11 @@ inputs:
     required: true
   value:
     description: String value stored under secret 'name'
-    required: true
+    required: false
+  operation:
+    description: Whatever 'set' or 'delete' secret
+    required: false
+    default: set
   AWS_ACCESS_KEY_ID:
     description: Set AWS Access Key ID
     required: true
@@ -24,7 +28,6 @@ runs:
   steps:
     - run: |
         [[ "${{ inputs.name }}" ]] || { echo "Input 'name' is empty" ; exit 1; }
-        [[ "${{ inputs.value }}" ]] || { echo "Input 'value' is empty" ; exit 1; }
         [[ "${{ inputs.AWS_ACCESS_KEY_ID }}" ]] || { echo "Input 'AWS_ACCESS_KEY_ID' is empty" ; exit 1; }
         [[ "${{ inputs.AWS_SECRET_ACCESS_KEY }}" ]] || { echo "Input 'AWS_SECRET_ACCESS_KEY' is empty" ; exit 1; }
         [[ "${{ inputs.AWS_DEFAULT_REGION }}" ]] || { echo "Input 'AWS_DEFAULT_REGION' is empty" ; exit 1; }
@@ -32,26 +35,39 @@ runs:
         KEY="${{ inputs.name }}"
         VALUE="${{ inputs.value }}"
 
-        # check if secret exists
-        set +e
-        aws secretsmanager describe-secret --secret-id "$KEY"
-        if [ "$?" != "0" ]; then
-            echo "Secret '$KEY' doesn't exist. Creating it."
-            aws secretsmanager create-secret --name "$KEY" --secret-string "$VALUE"
-            if [ "$?" != "0" ]; then
-                echo "Error while creating secret '$KEY'"
-                exit 1
-            fi
-            echo "Secret '$KEY' created successfully"
+        # SET SECRET VALUE
+        if [ "${{ inputs.operation }}" == "set" ]; then
+          [[ "${{ inputs.value }}" ]] || { echo "Input 'value' is empty" ; exit 1; }
+
+          # check if secret exists
+          set +e
+          aws secretsmanager describe-secret --secret-id "$KEY"
+          if [ "$?" != "0" ]; then
+              echo "Secret '$KEY' doesn't exist. Creating it."
+              aws secretsmanager create-secret --name "$KEY" --secret-string "$VALUE"
+              if [ "$?" != "0" ]; then
+                  echo "Error while creating secret '$KEY'"
+                  exit 1
+              fi
+              echo "Secret '$KEY' created successfully"
+          else
+              echo "Secret '$KEY' already exists. Updating it"
+              aws secretsmanager put-secret-value --secret-id "$KEY" --secret-string "$VALUE"
+              if [ "$?" != "0" ]; then
+                  echo "Error while updating secret value of '$KEY'"
+                  exit 1
+              fi
+              echo "Secret '$KEY' updated successfully"
+          fi
+
+        # DELETE SECRET VALUE
+        elif [ "${{ inputs.operation }}" == "delete" ]; then
+          aws secretsmanager delete-secret --secret-id "$KEY"
+
         else
-            echo "Secret '$KEY' already exists. Updating it"
-            aws secretsmanager put-secret-value --secret-id "$KEY" --secret-string "$VALUE"
-            if [ "$?" != "0" ]; then
-                echo "Error while updating secret value of '$KEY'"
-                exit 1
-            fi
-            echo "Secret '$KEY' updated successfully"
+          echo "Input 'operation' must be 'set' or 'delete'"
         fi
+
       shell: bash
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
