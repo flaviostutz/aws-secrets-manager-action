@@ -33,6 +33,7 @@ runs:
         VALUE="${{ inputs.value }}"
 
         # check if secret exists
+        set +e
         aws secretsmanager describe-secret --secret-id "$KEY"
         if [ "$?" != "0" ]; then
             echo "Secret '$KEY' doesn't exist. Creating it."
