@@ -1,0 +1,53 @@
+name: AWS Secrets Manager Action
+description: Pushes keys to AWS Secrets Manager. Can be used to store secrets from GH to AWS and use them in Lambda services, for example.
+inputs:
+  name:
+    description: Secret name to be stored in AWS Secrets Manager
+    required: true
+  value:
+    description: String value stored under secret 'name'
+    required: true
+  AWS_ACCESS_KEY_ID:
+    description: Set AWS Access Key ID'
+    required: false
+  AWS_SECRET_ACCESS_KEY:
+    description: 'Set AWS Secret access Key'
+    required: false
+  AWS_SESSION_TOKEN:
+    description: 'Set AWS Session token Key'
+    required: false
+  AWS_DEFAULT_REGION:
+    description: 'Set AWS default region'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        KEY="${{ inputs.secret-name }}"
+        VALUE="${{ inputs.secret-value }}"
+
+        # check if secret exists
+        aws secretsmanager describe-secret --secret-id "$KEY"
+        if [ "$?" != "0" ]; then
+            echo "Secret '$KEY' doesn't exist. Creating it."
+            aws secretsmanager create-secret --name "$KEY" --secret-string "$VALUE"
+            if [ "$?" != "0" ]; then
+                echo "Error while creating secret '$KEY'"
+                exit 1
+            fi
+            echo "Secret '$KEY' created successfully"
+        else
+            echo "Secret '$KEY' already exists. Updating it"
+            aws secretsmanager put-secret-value --secret-id "$KEY" --secret-string "$VALUE"
+            if [ "$?" != "0" ]; then
+                echo "Error while updating secret value of '$KEY'"
+                exit 1
+            fi
+            echo "Secret '$KEY' updated successfully"
+        fi
+      shell: bash
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ inputs.AWS_SESSION_TOKEN }}
+        AWS_DEFAULT_REGION: ${{ inputs.AWS_DEFAULT_REGION }}
