@@ -23,11 +23,11 @@ runs:
   using: "composite"
   steps:
     - run: |
-        [[ "${{ inputs.name }}" ]] || { echo "name input is empty" ; exit 1; }
-        [[ "${{ inputs.value }}" ]] || { echo "value input is empty" ; exit 1; }
-        [[ "${{ inputs.AWS_ACCESS_KEY_ID }}" ]] || { echo "AWS_ACCESS_KEY_ID input is empty" ; exit 1; }
-        [[ "${{ inputs.AWS_SECRET_ACCESS_KEY }}" ]] || { echo "AWS_SECRET_ACCESS_KEY input is empty" ; exit 1; }
-        [[ "${{ inputs.AWS_DEFAULT_REGION }}" ]] || { echo "AWS_DEFAULT_REGION input is empty" ; exit 1; }
+        [[ "${{ inputs.name }}" ]] || { echo "Input 'name' is empty" ; exit 1; }
+        [[ "${{ inputs.value }}" ]] || { echo "Input 'value' is empty" ; exit 1; }
+        [[ "${{ inputs.AWS_ACCESS_KEY_ID }}" ]] || { echo "Input 'AWS_ACCESS_KEY_ID' is empty" ; exit 1; }
+        [[ "${{ inputs.AWS_SECRET_ACCESS_KEY }}" ]] || { echo "Input 'AWS_SECRET_ACCESS_KEY' is empty" ; exit 1; }
+        [[ "${{ inputs.AWS_DEFAULT_REGION }}" ]] || { echo "Input 'AWS_DEFAULT_REGION' is empty" ; exit 1; }
 
         KEY="${{ inputs.secret-name }}"
         VALUE="${{ inputs.secret-value }}"
